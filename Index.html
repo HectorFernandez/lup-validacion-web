@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Validación LUP - Recibo de Zonas GASEOSAS LUX SUR</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.27/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 10px; background-color: #f5f5f5; }
+    .container { max-width: 1600px; margin: 0 auto; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 15px rgba(0,0,0,0.1); }
+    h1, h2 { color: #2c3e50; text-align: center; margin-bottom: 5px; }
+    .header-info { text-align: center; margin: 10px 0; color: #555; font-size: 0.9em; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 9pt; }
+    th, td { border: 1px solid #000; padding: 4px; text-align: center; vertical-align: middle; }
+    th { background-color: #e9ecef; font-weight: bold; }
+    tr:nth-child(even) { background-color: #f8f9fa; }
+    .condicion { display: flex; justify-content: center; gap: 10px; }
+    .condicion input[type="radio"] { margin: 0; }
+    .zona-select-container { text-align: center; margin: 15px 0; }
+    .btn { margin: 5px; padding: 8px 15px; cursor: pointer; border: none; border-radius: 4px; font-weight: bold; }
+    #btnCargarZona { background-color: #3498db; color: white; }
+    #btnGuardar { background-color: #27ae60; color: white; }
+    #btnLimpiar { background-color: #e74c3c; color: white; }
+    #btnGenerarPDF { background-color: #9b59b6; color: white; }
+    select, textarea { padding: 6px; border: 1px solid #ccc; border-radius: 4px; width: 180px; }
+    .evidencia { margin: 15px 0; padding: 10px; border: 1px dashed #ccc; border-radius: 6px; background-color: #fafafa; }
+    .evidencia label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+    .preview-images { display: flex; gap: 10px; margin-top: 10px; justify-content: center; }
+    .preview-images img { width: 100px; height: auto; border: 1px solid #ddd; border-radius: 4px; }
+    .system-section { margin: 25px 0; padding: 15px; border: 1px solid #ddd; border-radius: 6px; background-color: #f9f9f9; }
+    .system-title { font-weight: bold; color: #2c3e50; margin-bottom: 10px; }
+    .alerta { color: #e74c3c; font-weight: bold; }
+    .hidden { display: none; }
+    .no-data { color: #999; font-style: italic; }
+    @media print {
+      body { margin: 0; padding: 0; }
+      .container { box-shadow: none; padding: 0; }
+      table { font-size: 8pt; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>DEPARTAMENTO DE EMPAQUE Y PRODUCTO</h1>
+    <h2>GASEOSAS LUX SUR</h2>
+    <h2 style="margin-top: 5px;">INFORME DE LABOR PARA VALIDAR CUMPLIMIENTO DE CONDICIONES EN EL RECIBO DE ZONAS</h2>
+    <p style="text-align: center; font-weight: bold; margin: 5px 0;">1- CUMPLE &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp...... 0- NO CUMPLE</p>
+
+    <div class="header-info">
+      <strong>FECHA:</strong> <span id="fechaActual">Friday, June 06, 2025</span> &nbsp;&nbsp; 
+      <strong>SUPERVISOR:</strong> <input type="text" id="supervisor" placeholder="Nombre del supervisor" style="width: 180px; border: none; border-bottom: 1px solid #000; text-align: center;">
+    </div>
+
+    <div class="zona-select-container">
+      <label for="zonaSelect"><strong>Seleccionar Zona:</strong></label>
+      <select id="zonaSelect">
+        <option value="">-- Elige una zona --</option>
+      </select>
+      <button id="btnCargarZona" class="btn">Cargar Zona</button>
+    </div>
+
+    <div id="formContainer" class="hidden">
+      <table id="tablaPrincipal">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>ZONA</th>
+            <th>N° VH</th>
+            <th>CANASTILLA SALE - ENTRA</th>
+            <th>ESTIBAS SALE-ENTRA</th>
+            <th>REMISION SALE-ENTRA</th>
+            <th colspan="3">1. ASEO</th>
+            <th colspan="3">2. ENVASE</th>
+            <th colspan="3">3. PRODUCTO</th>
+            <th>NOVEDAD</th>
+          </tr>
+          <tr>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th>CABINA</th>
+            <th>CARROCERÍA</th>
+            <th>ESTIBAS</th>
+            <th>UBICACIÓN</th>
+            <th>ARRUMES</th>
+            <th>CALIDAD</th>
+            <th>UBICACIÓN</th>
+            <th>ORDEN</th>
+            <th>CORTINAS</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="tablaBody">
+          <!-- Rellenado dinámicamente -->
+        </tbody>
+      </table>
+
+      <div class="evidencia">
+        <label for="imagen_derecha">📸 Subir foto del LADO DERECHO del vehículo:</label>
+        <input type="file" id="imagen_derecha" accept="image/*">
+        <div class="preview-images" id="previewDerecha"></div>
+      </div>
+
+      <div class="evidencia">
+        <label for="imagen_izquierda">📸 Subir foto del LADO IZQUIERDO del vehículo:</label>
+        <input type="file" id="imagen_izquierda" accept="image/*">
+        <div class="preview-images" id="previewIzquierda"></div>
+      </div>
+
+      <div style="text-align: center; margin: 20px 0;">
+        <button id="btnGuardar" class="btn">💾 Guardar Validación</button>
+        <button id="btnLimpiar" class="btn">🗑️ Limpiar</button>
+        <button id="btnGenerarPDF" class="btn">🖨️ Generar Reporte PDF</button>
+      </div>
+    </div>
+
+    <div id="sistemasSection" class="system-section hidden">
+      <h3 class="system-title">LISTA VEHÍCULOS (MB51)</h3>
+      <table id="tablaMB51" style="width: 100%; font-size: 9pt;">
+        <thead><tr><th>ZONA</th><th>VEHÍCULO</th><th>ESTIBAS</th></tr></thead>
+        <tbody id="tbodyMB51"></tbody>
+      </table>
+
+      <h3 class="system-title">ZBVRE230</h3>
+      <table id="tablaZBVRE230" style="width: 100%; font-size: 9pt;">
+        <thead><tr><th>VEHÍCULO</th><th>ZONA</th></tr></thead>
+        <tbody id="tbodyZBVRE230"></tbody>
+      </table>
+
+      <h3 class="system-title">MONITORDOC</h3>
+      <table id="tablaMonitordoc" style="width: 100%; font-size: 9pt;">
+        <thead><tr><th>ZONA</th><th>CANT</th></tr></thead>
+        <tbody id="tbodyMonitordoc"></tbody>
+      </table>
+    </div>
+
+    <div id="alertaEvidencia" class="alerta hidden">⚠️ Debe subir las fotos del lado derecho e izquierdo del vehículo antes de guardar.</div>
+  </div>
+
+  <script>
+    // --- DATOS FIJOS ---
+    const zonas = [
+      "LS1301", "LS1302", "LS1303", "LS1304", "LS1601", "LS1602", "LS1603", "LS1604", "LS1605", "LS1646",
+      "LS1801", "LS1802", "LS1803", "LS1804", "LS1805", "LS1806", "LS1807", "LS1808", "LS1809", "LS1810",
+      "LS1811", "LS1812", "LS1813", "LS1814", "LS1815", "LS1816", "LS1817", "LS1818", "LS1819", "LS1821",
+      "LS1822", "LS1823", "LS1824", "LS1825", "LS1826", "LS1827", "LS1828", "LS1829", "LS1830", "LS1831",
+      "LS1832", "LS1833", "LS1834", "LS1835", "LS1836", "LS1837", "LS1838", "LS1839", "LS1840", "LS1841",
+      "LS1842", "LS1843", "LS1844", "LS1845", "LS1846", "LS1848", "LS1849", "LS1850", "LS1851", "LS1852",
+      "LS1854", "LS1855", "LS1856", "LS1857", "LS1858", "LS1859", "LS1860", "LS1861", "LS1863", "LS1864",
+      "LS1867", "LS1868", "LS1869", "LS1870", "LS1871", "LS1872", "LS1873", "LS1874", "LS1875", "LS1876",
+      "LS1877", "LS1878", "LS1879", "LS1880", "LS1881", "LS1882", "LS1883", "LS1884", "LS1885", "LS1886",
+      "LS1901", "LS1902"
+    ];
+
+    const mb51 = {
+      "LS1301": { vehiculo: "1653", estibas: 8 },
+      "LS1302": { vehiculo: "2422", estibas: 8 },
+      "LS1303": { vehiculo: "707", estibas: 6 },
+      "LS1304": { vehiculo: "7489", estibas: 13 },
+      "LS1601": { vehiculo: "5881", estibas: 10 },
+      "LS1602": { vehiculo: "5845", estibas: 10 },
+      "LS1603": { vehiculo: "6376", estibas: 10 },
+      "LS1604": { vehiculo: "6572", estibas: 8 },
+      "LS1605": { vehiculo: "7488", estibas: 12 },
+      "LS1646": { vehiculo: "7793", estibas: 8 },
+      "LS1801": { vehiculo: "8108", estibas: 8 },
+      "LS1802": { vehiculo: "7951", estibas: 7 },
+      "LS1803": { vehiculo: "7384", estibas: 10 },
+      "LS1804": { vehiculo: "8138", estibas: 10 },
+      "LS1805": { vehiculo: "7726", estibas: 8 },
+      "LS1806": { vehiculo: "8140", estibas: 11 },
+      "LS1807": { vehiculo: "8177", estibas: 10 },
+      "LS1808": { vehiculo: "7732", estibas: 9 },
+      "LS1809": { vehiculo: "7376", estibas: 11 },
+      "LS1810": { vehiculo: "8160", estibas: 9 },
+      "LS1811": { vehiculo: "7763", estibas: 13 },
+      "LS1812": { vehiculo: "7730", estibas: 10 },
+      "LS1813": { vehiculo: "7950", estibas: 12 },
+      "LS1814": { vehiculo: "8099", estibas: 10 },
+      "LS1815": { vehiculo: "8441", estibas: 10 },
+      "LS1816": { vehiculo: "7796", estibas: 13 },
+      "LS1817": { vehiculo: "7797", estibas: 8 },
+      "LS1818": { vehiculo: "8134", estibas: 8 },
+      "LS1819": { vehiculo: "8443", estibas: 12 },
+      "LS1821": { vehiculo: "8438", estibas: 8 },
+      "LS1822": { vehiculo: "8440", estibas: 7 },
+      "LS1823": { vehiculo: "7396", estibas: 9 },
+      "LS1824": { vehiculo: "8444", estibas: 10 },
+      "LS1825": { vehiculo: "8448", estibas: 10 },
+      "LS1826": { vehiculo: "8103", estibas: 10 },
+      "LS1827": { vehiculo: "7759", estibas: 8 },
+      "LS1828": { vehiculo: "7909", estibas: 10 },
+      "LS1829": { vehiculo: "7721", estibas: 10 },
+      "LS1830": { vehiculo: "8102", estibas: 13 },
+      "LS1831": { vehiculo: "8104", estibas: 10 },
+      "LS1832": { vehiculo: "8447", estibas: 8 },
+      "LS1833": { vehiculo: "8139", estibas: 11 },
+      "LS1834": { vehiculo: "8445", estibas: 11 },
+      "LS1835": { vehiculo: "7398", estibas: 14 },
+      "LS1836": { vehiculo: "7729", estibas: 12 },
+      "LS1837": { vehiculo: "7727", estibas: 13 },
+      "LS1838": { vehiculo: "8176", estibas: 8 },
+      "LS1839": { vehiculo: "7736", estibas: 11 },
+      "LS1840": { vehiculo: "8107", estibas: 10 },
+      "LS1841": { vehiculo: "7724", estibas: 9 },
+      "LS1842": { vehiculo: "7716", estibas: 8 },
+      "LS1843": { vehiculo: "7761", estibas: 8 },
+      "LS1844": { vehiculo: "7734", estibas: 9 },
+      "LS1845": { vehiculo: "8984", estibas: 11 },
+      "LS1846": { vehiculo: "7399", estibas: 11 },
+      "LS1848": { vehiculo: "7952", estibas: 10 },
+      "LS1849": { vehiculo: "7953", estibas: 10 },
+      "LS1850": { vehiculo: "8442", estibas: 10 },
+      "LS1851": { vehiculo: "7799", estibas: 9 },
+      "LS1852": { vehiculo: "7801", estibas: 10 },
+      "LS1854": { vehiculo: "7380", estibas: 13 },
+      "LS1855": { vehiculo: "7392", estibas: 9 },
+      "LS1856": { vehiculo: "8132", estibas: 10 },
+      "LS1857": { vehiculo: "7794", estibas: 7 },
+      "LS1858": { vehiculo: "7961", estibas: 9 },
+      "LS1859": { vehiculo: "8446", estibas: 9 },
+      "LS1860": { vehiculo: "8135", estibas: 8 },
+      "LS1861": { vehiculo: "7725", estibas: 9 },
+      "LS1863": { vehiculo: "7728", estibas: 8 },
+      "LS1864": { vehiculo: "7954", estibas: 8 },
+      "LS1867": { vehiculo: "8109", estibas: 11 },
+      "LS1868": { vehiculo: "7949", estibas: 2 },
+      "LS1869": { vehiculo: "7956", estibas: 9 },
+      "LS1870": { vehiculo: "7957", estibas: 11 },
+      "LS1871": { vehiculo: "8136", estibas: 10 },
+      "LS1872": { vehiculo: "7958", estibas: 4 },
+      "LS1873": { vehiculo: "8133", estibas: 9 },
+      "LS1874": { vehiculo: "7800", estibas: 10 },
+      "LS1875": { vehiculo: "7959", estibas: 9 },
+      "LS1876": { vehiculo: "8106", estibas: 11 },
+      "LS1877": { vehiculo: "8100", estibas: 10 },
+      "LS1878": { vehiculo: "8101", estibas: 7 },
+      "LS1879": { vehiculo: "7960", estibas: 11 },
+      "LS1880": { vehiculo: "7404", estibas: 11 },
+      "LS1881": { vehiculo: "7996", estibas: 7 },
+      "LS1882": { vehiculo: "8105", estibas: 8 },
+      "LS1883": { vehiculo: "8137", estibas: 11 },
+      "LS1884": { vehiculo: "7731", estibas: 0 },
+      "LS1885": { vehiculo: "7798", estibas: 10 },
+      "LS1886": { vehiculo: "8439", estibas: 9 },
+      "LS1901": { vehiculo: "8986", estibas: 4 },
+      "LS1902": { vehiculo: "7403", estibas: 10 }
+    };
+
+    const zbvre230 = {
+      "1653": "LS1301", "2422": "LS1302", "707": "LS1303", "7489": "LS1304", "5881": "LS1601", "5845": "LS1602", "6376": "LS1603",
+      "6572": "LS1604", "7488": "LS1605", "7793": "LS1646", "8108": "LS1801", "7951": "LS1802", "7384": "LS1803", "8138": "LS1804",
+      "7726": "LS1805", "8140": "LS1806", "8177": "LS1807", "7732": "LS1808", "7376": "LS1809", "8160": "LS1810", "7763": "LS1811",
+      "7730": "LS1812", "7950": "LS1813", "8099": "LS1814", "8441": "LS1815", "7796": "LS1816", "7797": "LS1817", "8134": "LS1818",
+      "8443": "LS1819", "8438": "LS1821", "8440": "LS1822", "7396": "LS1823", "8444": "LS1824", "8448": "LS1825", "8103": "LS1826",
+      "7759": "LS1827", "7909": "LS1828", "7721": "LS1829", "8102": "LS1830", "8104": "LS1831", "8447": "LS1832", "8139": "LS1833",
+      "8445": "LS1834", "7398": "LS1835", "7729": "LS1836", "7727": "LS1837", "8176": "LS1838", "7736": "LS1839", "8107": "LS1840",
+      "7724": "LS1841", "7716": "LS1842", "7761": "LS1843", "7734": "LS1844", "8984": "LS1845", "7399": "LS1846", "7952": "LS1848",
+      "7953": "LS1849", "8442": "LS1850", "7799": "LS1851", "7801": "LS1852", "7380": "LS1854", "7392": "LS1855", "8132": "LS1856",
+      "7794": "LS1857", "7961": "LS1858", "8446": "LS1859", "8135": "LS1860", "7725": "LS1861", "7728": "LS1863", "7954": "LS1864",
+      "8109": "LS1867", "7949": "LS1868", "7956": "LS1869", "7957": "LS1870", "8136": "LS1871", "7958": "LS1872", "8133": "LS1873",
+      "7800": "LS1874", "7959": "LS1875", "8106": "LS1876", "8100": "LS1877", "8101": "LS1878", "7960": "LS1879", "7404": "LS1880",
+      "7996": "LS1881", "8105": "LS1882", "8137": "LS1883", "7731": "LS1884", "7798": "LS1885", "8439": "LS1886", "8986": "LS1901",
+      "7403": "LS1902"
+    };
+
+    const monitordoc = {
+      "LS1301": 2, "LS1302": 1, "LS1303": 2, "LS1304": 2, "LS1601": 2, "LS1602": 1, "LS1603": 2, "LS1604": 2, "LS1605": 2,
+      "LS1646": 2, "LS1801": 1, "LS1802": 1, "LS1803": 1, "LS1804": 2, "LS1805": 2, "LS1806": 2, "LS1807": 2, "LS1808": 2,
+      "LS1809": 2, "LS1810": 2, "LS1811": 2, "LS1812": 2, "LS1813": 2, "LS1814": 2, "LS1815": 1, "LS1816": 2, "LS1817": 2,
+      "LS1818": 1, "LS1819": 2, "LS1821": 2, "LS1822": 2, "LS1823": 2, "LS1824": 2, "LS1825": 1, "LS1826": 1, "LS1827": 1,
+      "LS1828": 2, "LS1829": 1, "LS1830": 1, "LS1831": 1, "LS1832": 1, "LS1833": 1, "LS1834": 1, "LS1835": 1, "LS1836": 1,
+      "LS1837": 1, "LS1838": 1, "LS1839": 1, "LS1840": 1, "LS1841": 2, "LS1842": 2, "LS1843": 1, "LS1844": 1, "LS1845": 2,
+      "LS1846": 1, "LS1848": 3, "LS1849": 1, "LS1850": 2, "LS1851": 1, "LS1852": 3, "LS1854": 1, "LS1855": 2, "LS1856": 2,
+      "LS1857": 1, "LS1858": 2, "LS1859": 2, "LS1860": 2, "LS1861": 1, "LS1863": 2, "LS1864": 2, "LS1867": 2, "LS1868": 2,
+      "LS1869": 1, "LS1870": 2, "LS1871": 1, "LS1872": 2, "LS1873": 2, "LS1874": 2, "LS1875": 1, "LS1876": 1, "LS1877": 2,
+      "LS1878": 2, "LS1879": 2, "LS1880": 1, "LS1881": 1, "LS1882": 2, "LS1883": 2, "LS1884": 3, "LS1885": 3, "LS1886": 1,
+      "LS1901": 12, "LS1902": 2
+    };
+
+    const novedadesPorZona = {
+      "LS1303": "PEDIR 1 FORMATO KFC",
+      "LS1901": "PEDIR 1 FORMATO KFC"
+    };
+
+    // --- DOM ELEMENTS ---
+    const zonaSelect = document.getElementById("zonaSelect");
+    const btnCargarZona = document.getElementById("btnCargarZona");
+    const formContainer = document.getElementById("formContainer");
+    const tablaBody = document.getElementById("tablaBody");
+    const fechaActual = document.getElementById("fechaActual");
+    const supervisorInput = document.getElementById("supervisor");
+    const imagenDerecha = document.getElementById("imagen_derecha");
+    const imagenIzquierda = document.getElementById("imagen_izquierda");
+    const previewDerecha = document.getElementById("previewDerecha");
+    const previewIzquierda = document.getElementById("previewIzquierda");
+    const btnGuardar = document.getElementById("btnGuardar");
+    const btnLimpiar = document.getElementById("btnLimpiar");
+    const btnGenerarPDF = document.getElementById("btnGenerarPDF");
+    const alertaEvidencia = document.getElementById("alertaEvidencia");
+    const sistemasSection = document.getElementById("sistemasSection");
+    const tbodyMB51 = document.getElementById("tbodyMB51");
+    const tbodyZBVRE230 = document.getElementById("tbodyZBVRE230");
+    const tbodyMonitordoc = document.getElementById("tbodyMonitordoc");
+
+    // --- INICIALIZAR ---
+    fechaActual.textContent = new Date().toLocaleDateString('es-ES', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    zonas.forEach(z => {
+      const option = document.createElement("option");
+      option.value = z;
+      option.textContent = z;
+      zonaSelect.appendChild(option);
+    });
+
+    // --- EVENTOS ---
+    btnCargarZona.addEventListener("click", cargarZona);
+    btnGuardar.addEventListener("click", guardarValidacion);
+    btnLimpiar.addEventListener("click", limpiarFormulario);
+    btnGenerarPDF.addEventListener("click", generarPDF);
+
+    imagenDerecha.addEventListener("change", mostrarPrevisualizacionDerecha);
+    imagenIzquierda.addEventListener("change", mostrarPrevisualizacionIzquierda);
+
+    // --- FUNCIONES ---
+    function cargarZona() {
+      const zona = zonaSelect.value;
+      if (!zona) return alert("Seleccione una zona.");
+
+      formContainer.classList.remove("hidden");
+      sistemasSection.classList.remove("hidden");
+
+      // Limpiar tabla y llenar solo la fila seleccionada
+      tablaBody.innerHTML = '';
+      const row = document.createElement("tr");
+      const idx = zonas.indexOf(zona) + 1;
+
+      // Datos de referencia
+      const mb51Data = mb51[zona] || {};
+      const mdocData = monitordoc[zona] || 0;
+
+      // Celdas fijas
+      row.innerHTML = `
+        <td>${idx}</td>
+        <td>${zona}</td>
+        <td>${mb51Data.vehiculo || ''}</td>
+        <td>2</td>
+        <td>${mb51Data.estibas || ''}</td>
+        <td>${novedadesPorZona[zona] ? '1' : '0'}</td>
+        <td class="condicion"><input type="radio" name="aseo_cabina_${zona}" value="1"> <input type="radio" name="aseo_cabina_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="aseo_carroceria_${zona}" value="1"> <input type="radio" name="aseo_carroceria_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="aseo_estibas_${zona}" value="1"> <input type="radio" name="aseo_estibas_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="envase_ubicacion_${zona}" value="1"> <input type="radio" name="envase_ubicacion_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="envase_arrumes_${zona}" value="1"> <input type="radio" name="envase_arrumes_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="envase_calidad_${zona}" value="1"> <input type="radio" name="envase_calidad_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="producto_ubicacion_${zona}" value="1"> <input type="radio" name="producto_ubicacion_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="producto_orden_${zona}" value="1"> <input type="radio" name="producto_orden_${zona}" value="0"></td>
+        <td class="condicion"><input type="radio" name="producto_cortinas_${zona}" value="1"> <input type="radio" name="producto_cortinas_${zona}" value="0"></td>
+        <td><textarea rows="1" style="width:100%; resize:none; padding: 4px;">${novedadesPorZona[zona] || ''}</textarea></td>
+      `;
+      tablaBody.appendChild(row);
+
+      // Cargar datos guardados si existen
+      const saved = localStorage.getItem(`lup_validacion_${zona}`);
+      if (saved) {
+        const data = JSON.parse(saved);
+        cargarDatosGuardados(data, zona);
+      }
+
+      // Mostrar sistemas
+      mostrarSistemas(zona);
+    }
+
+    function cargarDatosGuardados(data, zona) {
+      const fields = [
+        { key: "aseo_cabina", input: `input[name="aseo_cabina_${zona}"][value="${data.aseo_cabina}"]` },
+        { key: "aseo_carroceria", input: `input[name="aseo_carroceria_${zona}"][value="${data.aseo_carroceria}"]` },
+        { key: "aseo_estibas", input: `input[name="aseo_estibas_${zona}"][value="${data.aseo_estibas}"]` },
+        { key: "envase_ubicacion", input: `input[name="envase_ubicacion_${zona}"][value="${data.envase_ubicacion}"]` },
+        { key: "envase_arrumes", input: `input[name="envase_arrumes_${zona}"][value="${data.envase_arrumes}"]` },
+        { key: "envase_calidad", input: `input[name="envase_calidad_${zona}"][value="${data.envase_calidad}"]` },
+        { key: "producto_ubicacion", input: `input[name="producto_ubicacion_${zona}"][value="${data.producto_ubicacion}"]` },
+        { key: "producto_orden", input: `input[name="producto_orden_${zona}"][value="${data.producto_orden}"]` },
+        { key: "producto_cortinas", input: `input[name="producto_cortinas_${zona}"][value="${data.producto_cortinas}"]` }
+      ];
+
+      fields.forEach(f => {
+        const el = document.querySelector(f.input);
+        if (el) el.checked = true;
+      });
+
+      const novedadTextarea = document.querySelector(`#tablaBody tr td textarea`);
+      if (novedadTextarea && data.novedad) novedadTextarea.value = data.novedad;
+
+      // Cargar imágenes
+      if (data.evidencias.derecha) {
+        previewDerecha.innerHTML = `<img src="${data.evidencias.derecha}" alt="Lado derecho">`;
+      }
+      if (data.evidencias.izquierda) {
+        previewIzquierda.innerHTML = `<img src="${data.evidencias.izquierda}" alt="Lado izquierdo">`;
+      }
+    }
+
+    function mostrarPrevisualizacionDerecha() {
+      const file = imagenDerecha.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewDerecha.innerHTML = `<img src="${e.target.result}" alt="Lado derecho">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function mostrarPrevisualizacionIzquierda() {
+      const file = imagenIzquierda.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        previewIzquierda.innerHTML = `<img src="${e.target.result}" alt="Lado izquierdo">`;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function guardarValidacion() {
+      const zona = zonaSelect.value;
+      if (!zona) return alert("Seleccione una zona.");
+
+      const aseo_cabina = document.querySelector(`input[name="aseo_cabina_${zona}"]:checked`)?.value || '';
+      const aseo_carroceria = document.querySelector(`input[name="aseo_carroceria_${zona}"]:checked`)?.value || '';
+      const aseo_estibas = document.querySelector(`input[name="aseo_estibas_${zona}"]:checked`)?.value || '';
+      const envase_ubicacion = document.querySelector(`input[name="envase_ubicacion_${zona}"]:checked`)?.value || '';
+      const envase_arrumes = document.querySelector(`input[name="envase_arrumes_${zona}"]:checked`)?.value || '';
+      const envase_calidad = document.querySelector(`input[name="envase_calidad_${zona}"]:checked`)?.value || '';
+      const producto_ubicacion = document.querySelector(`input[name="producto_ubicacion_${zona}"]:checked`)?.value || '';
+      const producto_orden = document.querySelector(`input[name="producto_orden_${zona}"]:checked`)?.value || '';
+      const producto_cortinas = document.querySelector(`input[name="producto_cortinas_${zona}"]:checked`)?.value || '';
+
+      const novedad = document.querySelector(`#tablaBody tr td textarea`).value;
+
+      let tieneImgs = false;
+      let derecha = null, izquierda = null;
+
+      if (imagenDerecha.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          derecha = reader.result;
+          if (imagenIzquierda.files.length > 0) {
+            const reader2 = new FileReader();
+            reader2.onload = () => {
+              izquierda = reader2.result;
+              guardarEnStorage(derecha, izquierda);
+            };
+            reader2.readAsDataURL(imagenIzquierda.files[0]);
+          } else {
+            alertaEvidencia.classList.remove("hidden");
+          }
+        };
+        reader.readAsDataURL(imagenDerecha.files[0]);
+      } else if (imagenIzquierda.files.length > 0) {
+        alertaEvidencia.classList.remove("hidden");
+        return;
+      } else {
+        alertaEvidencia.classList.remove("hidden");
+        return;
+      }
+
+      function guardarEnStorage(d, i) {
+        const data = {
+          aseo_cabina, aseo_carroceria, aseo_estibas,
+          envase_ubicacion, envase_arrumes, envase_calidad,
+          producto_ubicacion, producto_orden, producto_cortinas,
+          novedad,
+          evidencias: { derecha: d, izquierda: i }
+        };
+        localStorage.setItem(`lup_validacion_${zona}`, JSON.stringify(data));
+        alertaEvidencia.classList.add("hidden");
+        alert(`✅ Validación guardada para ${zona}`);
+      }
+    }
+
+    function limpiarFormulario() {
+      document.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+      document.querySelectorAll('#tablaBody tr td textarea').forEach(t => t.value = '');
+      previewDerecha.innerHTML = '';
+      previewIzquierda.innerHTML = '';
+      imagenDerecha.value = '';
+      imagenIzquierda.value = '';
+      alertaEvidencia.classList.add("hidden");
+    }
+
+    function mostrarSistemas(zona) {
+      // MB51
+      tbodyMB51.innerHTML = '';
+      const mb51Row = document.createElement("tr");
+      const mb51Data = mb51[zona] || {};
+      mb51Row.innerHTML = `<td>${zona}</td><td>${mb51Data.vehiculo || '-'}</td><td>${mb51Data.estibas || '-'}</td>`;
+      tbodyMB51.appendChild(mb51Row);
+
+      // ZBVRE230
+      tbodyZBVRE230.innerHTML = '';
+      const vehiculo = mb51Data.vehiculo;
+      if (vehiculo && zbvre230[vehiculo]) {
+        const zbRow = document.createElement("tr");
+        zbRow.innerHTML = `<td>${vehiculo}</td><td>${zbvre230[vehiculo]}</td>`;
+        tbodyZBVRE230.appendChild(zbRow);
+      }
+
+      // MONITORDOC
+      tbodyMonitordoc.innerHTML = '';
+      const mdocRow = document.createElement("tr");
+      mdocRow.innerHTML = `<td>${zona}</td><td>${monitordoc[zona] || '-'}</td>`;
+      tbodyMonitordoc.appendChild(mdocRow);
+    }
+
+    function generarPDF() {
+      const zona = zonaSelect.value;
+      if (!zona) return alert("Primero seleccione una zona y guarde los datos.");
+
+      const doc = new jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const totalPages = 1;
+
+      // Encabezado
+      doc.setFontSize(14);
+      doc.text("DEPARTAMENTO DE EMPAQUE Y PRODUCTO", 105, 10, { align: "center" });
+      doc.setFontSize(12);
+      doc.text("GASEOSAS LUX SUR", 105, 15, { align: "center" });
+      doc.text("INFORME DE LABOR PARA VALIDAR CUMPLIMIENTO DE CONDICIONES EN EL RECIBO DE ZONAS", 105, 20, { align: "center" });
+      doc.setFontSize(10);
+      doc.text("1- CUMPLE", 80, 25);
+      doc.text("0- NO CUMPLE", 160, 25);
+      doc.text(`FECHA: ${fechaActual.textContent}`, 10, 30);
+      doc.text(`SUPERVISOR: ${supervisorInput.value || 'No especificado'}`, 10, 35);
+
+      // Tabla principal
+      const headers = [
+        ["#", "ZONA", "N° VH", "CANASTILLA\nSALE - ENTRA", "ESTIBAS\nSALE-ENTRA", "REMISION\nSALE-ENTRA", "CABINA", "CARROCERÍA", "ESTIBAS", "UBICACIÓN", "ARRUMES", "CALIDAD", "UBICACIÓN", "ORDEN", "CORTINAS", "NOVEDAD", "EVIDENCIA"]
+      ];
+      const data = [];
+
+      zonas.forEach(z => {
+        const saved = localStorage.getItem(`lup_validacion_${z}`);
+        if (!saved) return;
+
+        const item = JSON.parse(saved);
+        const mb51Data = mb51[z] || {};
+
+        const row = [
+          zonas.indexOf(z) + 1,
+          z,
+          mb51Data.vehiculo || '',
+          '2',
+          mb51Data.estibas || '',
+          novedadesPorZona[z] ? '1' : '0',
+          item.aseo_cabina || '',
+          item.aseo_carroceria || '',
+          item.aseo_estibas || '',
+          item.envase_ubicacion || '',
+          item.envase_arrumes || '',
+          item.envase_calidad || '',
+          item.producto_ubicacion || '',
+          item.producto_orden || '',
+          item.producto_cortinas || '',
+          item.novedad || '',
+          item.evidencias.derecha && item.evidencias.izquierda ? "📷" : item.evidencias.derecha || item.evidencias.izquierda ? "⚠️" : "❌"
+        ];
+        data.push(row);
+      });
+
+      // Ajustar ancho de columnas
+      const colWidths = [8, 15, 15, 20, 15, 15, 10, 10, 10, 10, 10, 10, 10, 10, 10, 25, 10];
+
+      doc.autoTable({
+        head: headers,
+        body: data,
+        startY: 40,
+        theme: 'grid',
+        styles: { fontSize: 7, cellPadding: 1, halign: 'center', valign: 'middle' },
+        headStyles: { fillColor: [233, 234, 239], textColor: [0, 0, 0] },
+        columnStyles: { 15: { cellWidth: 30 } },
+        columnWidth: colWidths,
+        didDrawPage: function (data) {
+          doc.setFontSize(8);
+          doc.text(`Página ${data.pageNumber} de ${totalPages}`, data.settings.margin.left, doc.internal.pageSize.height - 10);
+        }
+      });
+
+      // Sistemas inferiores
+      let y = doc.lastAutoTable.finalY + 15;
+
+      doc.setFontSize(8);
+      doc.text("LISTA VEHÍCULOS (MB51)", 10, y);
+      y += 8;
+      const mb51DataForPDF = [];
+      zonas.forEach(z => {
+        const mb51Item = mb51[z];
+        if (mb51Item) mb51DataForPDF.push([z, mb51Item.vehiculo, mb51Item.estibas]);
+      });
+      doc.autoTable({
+        head: [['ZONA', 'VEHÍCULO', 'ESTIBAS']],
+        body: mb51DataForPDF,
+        startY: y,
+        theme: 'grid',
+        styles: { fontSize: 7, cellPadding: 1 },
+        columnStyles: { 0: { cellWidth: 15 }, 1: { cellWidth: 20 }, 2: { cellWidth: 15 } },
+        margin: { left: 10 }
+      });
+
+      y = doc.lastAutoTable.finalY + 10;
+      doc.text("ZBVRE230", 10, y);
+      y += 8;
+      const zbData = [];
+      Object.keys(zbvre230).forEach(veh => {
+        const zona = zbvre230[veh];
+        zbData.push([veh, zona]);
+      });
+      doc.autoTable({
+        head: [['VEHÍCULO', 'ZONA']],
+        body: zbData,
+        startY: y,
+        theme: 'grid',
+        styles: { fontSize: 7, cellPadding: 1 },
+        columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 25 } },
+        margin: { left: 10 }
+      });
+
+      y = doc.lastAutoTable.finalY + 10;
+      doc.text("MONITORDOC", 10, y);
+      y += 8;
+      const mdData = [];
+      Object.keys(monitordoc).forEach(z => {
+        mdData.push([z, monitordoc[z]]);
+      });
+      doc.autoTable({
+        head: [['ZONA', 'CANT']],
+        body: mdData,
+        startY: y,
+        theme: 'grid',
+        styles: { fontSize: 7, cellPadding: 1 },
+        columnStyles: { 0: { cellWidth: 25 }, 1: { cellWidth: 15 } },
+        margin: { left: 10 }
+      });
+
+      // Pie de página
+      y = doc.lastAutoTable.finalY + 20;
+      doc.setFontSize(8);
+      doc.text("© 2025 GASEOSAS LUX SUR – Departamento de Empaque y Producto", 105, y, { align: "center" });
+
+      doc.save(`REPORTE_LUP_${new Date().toISOString().split('T')[0]}.pdf`);
+    }
+  </script>
+</body>
+</html>
